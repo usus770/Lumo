@@ -1,0 +1,48 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Xcode / Swift Package Manager
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+
+# Build Outputs & Distributables
+build/
+*.dmg
+*.app/
+*.zip
+*.ipa
+*.pkg
+
+# Helper Binaries & Caches
+bin/
+*.flac
+*.m4a
+*.lrc
+*.mp3
+*.wav
+
+# IDE & Editor Files
+.freebuff/
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs & Test Scratch Files
+*.log
+app_log.txt
+sample.txt
+test_runner
+test_online_runner
+test_parser
+reference/

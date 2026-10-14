@@ -1,0 +1,10 @@
+{
+  "name": "com.lumo.native",
+  "description": "Lumo Native Messaging Host",
+  "path": "/Applications/Lumo.app/Contents/MacOS/LumoNativeHost",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://<EXTENSION_ID>/",
+    "moz-extension://<EXTENSION_ID>/"
+  ]
+}

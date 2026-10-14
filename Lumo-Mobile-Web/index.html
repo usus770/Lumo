@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Lumo — Universal Music Player</title>
+  
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lumo">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#07040D">
+
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" class="logo-svg">
+            <path d="M4 4v12a4 4 0 004 4h12" stroke="url(#lumoGradient)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="16" cy="8" r="3" fill="#FF3D9A"/>
+            <defs>
+              <linearGradient id="lumoGradient" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FFC857"/>
+                <stop offset="0.5" stop-color="#FF3D9A"/>
+                <stop offset="1" stop-color="#7C5CFF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="brand-name">Lumo</span>
+      </div>
+      <div class="header-actions">
+        <label for="audioFileInput" class="btn-icon" title="Import Songs from Files">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </label>
+        <input type="file" id="audioFileInput" accept="audio/*" multiple style="display: none;">
+      </div>
+    </header>
+
+    <!-- Main Views Tab Container -->
+    <main class="main-content">
+      <!-- 1. Library View -->
+      <section id="view-library" class="view-panel active">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search tracks, artists...">
+        </div>
+
+        <div class="section-header">
+          <h2>Songs</h2>
+          <span id="trackCount" class="badge">0 songs</span>
+        </div>
+
+        <div id="songList" class="song-list">
+          <!-- Dynamically populated songs -->
+        </div>
+      </section>
+
+      <!-- 2. Visualizer View -->
+      <section id="view-visualizer" class="view-panel">
+        <div class="visualizer-container">
+          <div class="visualizer-artwork-wrap">
+            <img id="visArtwork" src="./icon-192.png" alt="Artwork" class="vis-artwork">
+            <div class="vis-glow"></div>
+          </div>
+          <div class="vis-info">
+            <h2 id="visTitle">Not Playing</h2>
+            <p id="visArtist">Select a track to start</p>
+          </div>
+          <canvas id="visualizerCanvas" width="340" height="140"></canvas>
+        </div>
+      </section>
+
+      <!-- 3. Playing Queue View -->
+      <section id="view-queue" class="view-panel">
+        <div class="section-header queue-header">
+          <div>
+            <h2>Playing Queue</h2>
+            <span id="queueBadge" class="badge">0 upcoming</span>
+          </div>
+          <div class="queue-actions">
+            <button id="btnQueueShuffle" class="btn-subtle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+              <span>Shuffle</span>
+            </button>
+            <button id="btnQueueClear" class="btn-subtle text-danger">Clear</button>
+          </div>
+        </div>
+
+        <!-- Now Playing Card in Queue -->
+        <div class="queue-now-playing-wrap">
+          <span class="sub-heading">NOW PLAYING</span>
+          <div id="queueNowPlayingCard" class="queue-card current">
+            <img id="qnpArtwork" src="./icon-192.png" alt="Artwork">
+            <div class="track-text">
+              <div id="qnpTitle" class="title">Not Playing</div>
+              <div id="qnpArtist" class="artist">-</div>
+            </div>
+            <div class="eq-bars">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="up-next-wrap">
+          <div class="sub-heading-row">
+            <span class="sub-heading">UP NEXT (DRAG TO REORDER)</span>
+          </div>
+          <div id="queueList" class="queue-list">
+            <!-- Draggable queue items -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Settings & Developer View -->
+      <section id="view-settings" class="view-panel">
+        <div class="settings-card">
+          <div class="settings-avatar">
+            <div class="avatar-gradient">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <h3>Lumo</h3>
+            <span class="version-tag">Version 1.0.0 • Mobile Web & iOS PWA</span>
+          </div>
+
+          <p class="app-desc">Universal lossless audio playback & reactive kinetic visualizer.</p>
+          <hr class="divider">
+
+          <div class="dev-info-box">
+            <div class="creator-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF3D9A" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Created by <strong>Ujjwal Singh</strong></span>
+            </div>
+
+            <a href="https://github.com/usus770" target="_blank" rel="noopener" class="github-pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span>github.com/usus770</span>
+            </a>
+          </div>
+
+          <div class="ios-install-guide">
+            <h4>📲 Install on iPhone:</h4>
+            <ol>
+              <li>Tap the <strong>Share</strong> button (box with arrow) at the bottom of Safari.</li>
+              <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+              <li>Lumo will appear as a standalone app on your iPhone!</li>
+            </ol>
+          </div>
+
+          <footer class="settings-footer">
+            <span>© 2026 Ujjwal Singh. All rights reserved.</span>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <!-- Mini Player (Floating Bar) -->
+    <div id="miniPlayer" class="mini-player hidden">
+      <img id="mpArtwork" src="./icon-192.png" alt="Artwork" class="mp-artwork">
+      <div id="mpInfo" class="mp-info">
+        <span id="mpTitle" class="mp-title">Track Title</span>
+        <span id="mpArtist" class="mp-artist">Artist Name</span>
+      </div>
+      <div class="mp-controls">
+        <button id="btnMpPlayPause" class="btn-circle-action">
+          <svg id="mpPlayIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button id="btnMpNext" class="btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Full Screen Player Modal -->
+    <div id="fullPlayer" class="full-player-modal hidden">
+      <div class="fp-header">
+        <button id="btnFpDismiss" class="btn-ghost">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <span class="fp-header-title">NOW PLAYING</span>
+        <button id="btnFpLyrics" class="btn-ghost" title="Toggle Lyrics">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </button>
+      </div>
+
+      <div class="fp-body">
+        <div id="fpArtworkWrap" class="fp-artwork-wrap">
+          <img id="fpArtwork" src="./icon-192.png" alt="Artwork" class="fp-artwork">
+          <div class="fp-glow"></div>
+        </div>
+
+        <div id="fpLyricsWrap" class="fp-lyrics-wrap hidden">
+          <div id="fpLyricsContainer" class="lyrics-scroll">
+            <p class="no-lyrics">No synchronized lyrics available for this track.</p>
+          </div>
+        </div>
+
+        <div class="fp-meta">
+          <div class="fp-text">
+            <h2 id="fpTitle">Track Title</h2>
+            <p id="fpArtist">Artist Name</p>
+          </div>
+          <span class="badge-lossless">LOSSLESS</span>
+        </div>
+
+        <div class="fp-scrubber">
+          <input type="range" id="fpScrubber" min="0" max="100" value="0" step="0.1">
+          <div class="fp-time-row">
+            <span id="fpCurrentTime">0:00</span>
+            <span id="fpRemainingTime">-0:00</span>
+          </div>
+        </div>
+
+        <div class="fp-transport">
+          <button id="btnFpShuffle" class="btn-ghost" title="Shuffle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          </button>
+          <button id="btnFpPrev" class="btn-ghost" title="Previous">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2.5"/></svg>
+          </button>
+          <button id="btnFpPlayPause" class="btn-main-play">
+            <svg id="fpPlayIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <button id="btnFpNext" class="btn-ghost" title="Next">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"/></svg>
+          </button>
+          <button id="btnFpRepeat" class="btn-ghost" title="Repeat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+      <button class="tab-item active" data-view="view-library">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span>Library</span>
+      </button>
+      <button class="tab-item" data-view="view-visualizer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5v14M7 9v6M2 11v2M22 11v2"/></svg>
+        <span>Visualizer</span>
+      </button>
+      <button class="tab-item" data-view="view-queue">
+        <div class="tab-badge-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span id="tabQueueBadge" class="mini-badge">0</span>
+        </div>
+        <span>Queue</span>
+      </button>
+      <button class="tab-item" data-view="view-settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>About</span>
+      </button>
+    </nav>
+  </div>
+
+  <audio id="audioElement" preload="auto"></audio>
+  <script src="./app.js"></script>
+</body>
+</html>
